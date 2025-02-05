@@ -51,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
         children: [
           // Logo ITI
           ZoomIn(
-            child: Image.asset('assets/logo_iti.png', height: 120.h),
+            child: Image.asset('assets/logo.jpeg', height: 120.h),
           ),
           SizedBox(height: 20.h),
 
@@ -117,18 +117,16 @@ class _HomeViewState extends State<HomeView> {
   /// Halaman WebView untuk menampilkan SIAKAD ITI
   Widget _buildWebView() {
     return Scaffold(
-      body: Column(
-        children: [
-          // Header Custom
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            width: double.infinity,
-            color: Colors.blue.shade800,
-            child: Center(
-              child: AnimatedTextKit(
+      body: SafeArea( // Tambahkan SafeArea agar tidak tertutup status bar
+        child: Column(
+          children: [
+            // Header dengan AppBar agar tidak ketutupan status bar
+            AppBar(
+              backgroundColor: Colors.blue.shade800,
+              title: AnimatedTextKit(
                 animatedTexts: [
                   ColorizeAnimatedText(
-                    "SIAKAD Institut Teknologi Indonesia",
+                    "SIAKAD ITI",
                     textStyle: GoogleFonts.poppins(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -139,14 +137,23 @@ class _HomeViewState extends State<HomeView> {
                 repeatForever: true,
                 isRepeatingAnimation: true,
               ),
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  setState(() {
+                    isWebViewVisible = false;
+                  });
+                },
+              ),
             ),
-          ),
 
-          // WebView
-          Expanded(
-            child: WebViewWidget(controller: _controller),
-          ),
-        ],
+            // WebView
+            Expanded(
+              child: WebViewWidget(controller: _controller),
+            ),
+          ],
+        ),
       ),
     );
   }
