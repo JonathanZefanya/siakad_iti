@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -19,6 +20,18 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) async {
+            // Jika URL mengarah ke login Google, buka di browser eksternal
+            if (request.url.contains("accounts.google.com")) {
+              await launchUrl(Uri.parse(request.url), mode: LaunchMode.externalApplication);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
       ..loadRequest(Uri.parse('https://siakad.iti.ac.id'));
   }
 
@@ -51,7 +64,7 @@ class _HomeViewState extends State<HomeView> {
         children: [
           // Logo ITI
           ZoomIn(
-            child: Image.asset('assets/logo.jpeg', height: 120.h),
+            child: Image.asset('assets/logo.png', height: 120.h),
           ),
           SizedBox(height: 20.h),
 
@@ -117,10 +130,10 @@ class _HomeViewState extends State<HomeView> {
   /// Halaman WebView untuk menampilkan SIAKAD ITI
   Widget _buildWebView() {
     return Scaffold(
-      body: SafeArea( // Tambahkan SafeArea agar tidak tertutup status bar
+      body: SafeArea(
         child: Column(
           children: [
-            // Header dengan AppBar agar tidak ketutupan status bar
+            // Header tanpa tombol kembali
             AppBar(
               backgroundColor: Colors.blue.shade800,
               title: AnimatedTextKit(
@@ -138,20 +151,9 @@ class _HomeViewState extends State<HomeView> {
                 isRepeatingAnimation: true,
               ),
               centerTitle: true,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  setState(() {
-                    isWebViewVisible = false;
-                  });
-                },
-              ),
+              automaticallyImplyLeading: false, // Hapus tombol back
             ),
-
-            // WebView
-            Expanded(
-              child: WebViewWidget(controller: _controller),
-            ),
+            Expanded(child: WebViewWidget(controller: _controller)),
           ],
         ),
       ),
